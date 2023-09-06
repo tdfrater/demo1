@@ -1,20 +1,15 @@
 package labs;
 
 import java.util.Random;
-//import java.util.List;
-//import java.util.ArrayList;
 
 public class Lab1Test
 
 {
-	public static void main(String[] args) 
+	public static int uniformFreq()
 	{
-		String s = "ATGC";
 		Random random = new Random();
-		
+		String s = "ATGC";
 		int check = 0;
-		int check2 = 0;
-		
 		for(int x = 0; x < 1000; x++)
 		{
 			String o = "";
@@ -22,10 +17,14 @@ public class Lab1Test
 				o = o + s.charAt(random.nextInt(4));
 			if(o.equals("AAA"))
 				check++;
-//			System.out.println("equal: " + o + " " + x);
 		}
-
-		
+		return check;
+	}
+	
+	public static int nonuniformFreq()
+	{
+		Random random = new Random();
+		int check2 = 0;
 		for(int a = 0; a < 1000; a++)
 		{
 			String o = "";
@@ -43,9 +42,14 @@ public class Lab1Test
 				if(o.equals("AAA"))
 					check2++;
 			}
-//			System.out.println("unequal: " + o + " " + a);
 		}
-		System.out.println("Uniform Probability: " + check);
-		System.out.println("Non-uniform Probability: " + check2);
+		return check2;
+	}
+	public static void main(String[] args) 
+	{
+		System.out.println("Lab_1 Theodore Frater tfrater@uncc.edu");
+		System.out.println("1.) The code for this question is inside the uniformFreq method");
+		System.out.println("2.) Here is the AAA count for a uniformly sampled and uniform frequency of ATGC: " + uniformFreq() + "\n\t Expected value = (0.25)^3 * 1000 = 16");
+		System.out.println("3.) Here is the AAA count for a non-uniformly sampled and uniform frequency of ATGC: " + nonuniformFreq() + "\n\t Code for this question is in nonuniformFreq() method" + "\n\t Expected value = (0.12)^3 * 1000 = 2");
 		}
 	}
