@@ -91,14 +91,18 @@ public class FastaSequence
 	{
 		return gcRatio;
 	}
-	
+	//Method to read in a fasta file from a filepath and convert it to a list of FastaSequence objects
 	public static List<FastaSequence> readFastaFile(String filepath) throws Exception
 	{
 		List<FastaSequence> seqList = new LinkedList<FastaSequence>();
+		//String that holds each header sequence combo before I put it into the list
 		String fasta = "";
+		//String that holds each line in the file
 		String nextLine = "";
+		//integer that tracks line number
 		int lineNum = 0;
 		BufferedReader reader = new BufferedReader(new FileReader(new File(filepath)));
+		//Whille loop scheme I came up with to handle the parsing
 		while (( nextLine = reader.readLine()) != null) {
 			if(nextLine.startsWith(">")) {
 				if(lineNum == 0) {
@@ -115,6 +119,7 @@ public class FastaSequence
 				lineNum ++;
 			}
 		}
+		//This final one outside the loop is very important to capture the last header sequence combo in the file
 		seqList.add(new FastaSequence(fasta));
 		reader.close();
 		return seqList;
