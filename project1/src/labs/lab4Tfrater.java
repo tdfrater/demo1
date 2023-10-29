@@ -23,7 +23,7 @@ import javax.swing.JTextField;
 
 public class lab4Tfrater extends JFrame {
 	private static final long serialVersionUID = 3794059922116115530L;
-	
+	//These are all the variables that I needed globally accessible
 	private JTextField answerField = new JTextField(10);
 	private JTextField userTimeField = new JTextField(10);
 	private JButton submitButton = new JButton("submit");
@@ -43,7 +43,7 @@ public class lab4Tfrater extends JFrame {
 	private List<String> correctList = new LinkedList<String>();
 	private List<String> incorrectList = new LinkedList<String>();
 	private List<String> noResponseList = new LinkedList<String>();
-	private boolean cancel = false;
+	private volatile boolean cancel = false;
 	
 	//Character string that contains the amino acid short names
 	public static String[] SHORT_NAMES = 
@@ -61,7 +61,7 @@ public class lab4Tfrater extends JFrame {
 	"phenylalanine", "proline", 
 	"serine","threonine","tryptophan", 
 	"tyrosine", "valine"};
-	
+	//This class handles all the inputs from answerField and checks to see whether the user got the answer correct then outputs to outputArea
 	private class InputTest implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			Random random = new Random();
@@ -95,7 +95,7 @@ public class lab4Tfrater extends JFrame {
 			}
 		}
 	}
-	
+	//This class handles the custom dialog box that opens when the program starts
 	private class MyDialog extends JDialog {
 		private static final long serialVersionUID = 3794059922116115530L;
 		public MyDialog(JFrame parent) {
@@ -108,6 +108,7 @@ public class lab4Tfrater extends JFrame {
 			northPanel.add(dialogUnitsLabel);
 			JPanel buttonPanel = new JPanel();
 			buttonPanel.add(beginButton);
+			//Listener that controls what happens when the begin button is pressed
 			beginButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					try {
@@ -115,6 +116,7 @@ public class lab4Tfrater extends JFrame {
 						Random random = new Random();
 						aminoPosition = random.nextInt(20);
 						questionLabel.setText(FULL_NAMES[aminoPosition]+":");
+						//starts a new thread that starts the timer and listens for the cancel button being pressed
 						new Thread(new EndConditionsThread()).start();
 						dispose();
 					}
@@ -124,6 +126,7 @@ public class lab4Tfrater extends JFrame {
 				}
 			});
 			buttonPanel.add(endDialogButton);
+			//Ends the program if the end dialog button is pressed
 			endDialogButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					System.exit(0);
@@ -132,6 +135,7 @@ public class lab4Tfrater extends JFrame {
 			getContentPane().add(dialogLabel,BorderLayout.NORTH);
 			getContentPane().add(northPanel,BorderLayout.CENTER);
 			getContentPane().add(buttonPanel,BorderLayout.SOUTH);
+			//ends the program if the dialog window is closed with the x button
 			addWindowListener(new WindowAdapter() {
 				@Override public void windowClosing(WindowEvent e) {
 					System.exit(0);
@@ -141,7 +145,7 @@ public class lab4Tfrater extends JFrame {
 			setSize(250,200);
 		}
 	}
-	
+	//Class that controls the conditions for ending the quiz. The timer and the cancel button
 	private class EndConditionsThread implements Runnable {
 		public void run() {
 			int timeTotal = Integer.parseInt(userTimeField.getText());
@@ -150,18 +154,20 @@ public class lab4Tfrater extends JFrame {
 				while(timeCount != timeTotal && cancel==false) {
 					timerLabel.setText("Time Left: "+String.valueOf(timeTotal - timeCount)+"sec");
 					timeCount++;
+					//1000 is in milliseconds so the thread will sleep every second then display the time again
 					Thread.sleep(1000);
 					}
 				} 
 			catch (Exception ex) {
 					outputArea.append(ex.getMessage());
 			}
+			//These need to be set on the AWT thread
 			submitButton.setEnabled(false);
 			timerLabel.setText("Time Left: "+String.valueOf(timeTotal - timeCount)+"sec");
 			quizResults();
 		}
 	}
-	
+	//This method displays the results of the quiz to the output area and I call it whenever the quiz ends
 	public void quizResults() {
 		outputArea.append("**********Quiz Ended**********\n");
 		outputArea.append("Correct: "+correctCount+"\n"+correctList+"\n");
@@ -173,7 +179,7 @@ public class lab4Tfrater extends JFrame {
 		outputArea.append("Score: "+decimalFormat.format(finalScore)+"%");
 		JOptionPane.showMessageDialog(null, "Results of quiz are at the bottom of the text area", "Quiz Ended", JOptionPane.INFORMATION_MESSAGE);
 	}
-	
+	//Handles my main JFrame for the quiz
 	public lab4Tfrater() {
 		super("Amino Acid Quiz");
 		setLocationRelativeTo(null);
@@ -197,6 +203,7 @@ public class lab4Tfrater extends JFrame {
 			}
 		});
 		getRootPane().setDefaultButton(submitButton);
+		//window listener that closes the program if the JFrame is closed with the x button
 		addWindowListener(new WindowAdapter() {
 			@Override public void windowClosing(WindowEvent e) {
 				System.exit(0);
@@ -204,7 +211,7 @@ public class lab4Tfrater extends JFrame {
 		});
 		setVisible(true);
 	}
-	
+	//Main that starts the program
 	public static void main(String[] args) {
 		new lab4Tfrater();
 	}
