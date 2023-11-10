@@ -1,15 +1,30 @@
 package labs;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class lab5TfraterAllocationTest {
+
+	public static List<List<Integer>> distributeNumbers() {
+	    List<List<Integer>> distributedLists = new ArrayList<>();
+	
+	    for (int i = 0; i < 4; i++) {
+	        distributedLists.add(new ArrayList<>());
+	    }
+	
+	    for (int i = 0; i <= 100; i++) {
+	        int listIndex = i % 4; // Determine which list to add the number
+	        distributedLists.get(listIndex).add(i);
+	    }
+	
+	    return distributedLists;
+	}
+	
 	public static void main(String[] args) {
-		int num = 100;
-		for(int x = 1; x <= num; x++) {
-			if(x/4 == 0) {
-				System.out.println("Modulus Division 0\n"+x);
-			}
-			else if(x/4 == 1) {
-				System.out.println("Modulus Division 1\n"+x);
-			}
-		}
+	    List<List<Integer>> distributedLists = distributeNumbers();
+	
+	    for (int i = 0; i < 4; i++) {
+	        System.out.println("List " + (i + 1) + ": " + distributedLists.get(i));
+	    }
 	}
 }
