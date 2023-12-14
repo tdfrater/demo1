@@ -59,7 +59,7 @@ public class FinalProjectTfrater extends JFrame {
 	//Table that shows the user the information that they have inputed
 	private JTable outputTable = new JTable(model);
 	//Formatter that lets me customize how date and time are shown to the user
-	private DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd-MMM-yyyy HH:mm:ss");
+	private DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
     //Lets me access the local date and time of the users system
 	private LocalDateTime now = LocalDateTime.now();
 	
@@ -141,7 +141,7 @@ public class FinalProjectTfrater extends JFrame {
 						//Adding entries into the JTable if they are not empty
 						if(newLine.length != 0)
 							model.addRow(newLine);
-						if(Integer.parseInt(dueDate) > now.getDayOfMonth()) {
+						if(type.equals("Expense") && (Integer.parseInt(dueDate) > now.getDayOfMonth())) {
 								outputArea.append("$"+amountString+" for "+name+" due in "+(Integer.parseInt(dueDate) - now.getDayOfMonth())+" days"+"\n\n");
 								expenseMonthBoolean = true;
 						}
@@ -197,7 +197,7 @@ public class FinalProjectTfrater extends JFrame {
 							int amount = Integer.parseInt(amountString);
 							expenseTotal += amount;
 						}
-						if(Integer.parseInt(dueDate) > now.getDayOfMonth()) {
+						if(type.equals("Expense") && (Integer.parseInt(dueDate) > now.getDayOfMonth())) {
 								outputArea.append("$"+amountString+" for "+name+" due in "+(Integer.parseInt(dueDate) - now.getDayOfMonth())+" days"+"\n\n");
 								expenseMonthBoolean = true;
 						}
@@ -228,6 +228,7 @@ public class FinalProjectTfrater extends JFrame {
 			//Combo box used to build a binary drop down list using the options in comboChoices
 			String[] comboChoices = {"Income","Expense"};
 			JComboBox<String> typeBox = new JComboBox<>(comboChoices);
+			//The text fields used for user input
 			JTextField nameField = new JTextField(10);
 			JTextField amountField = new JTextField(10);
 			JTextField dueDate = new JTextField(10);
@@ -253,12 +254,14 @@ public class FinalProjectTfrater extends JFrame {
 			addButton.addActionListener(new ActionListener () {
 				public void actionPerformed(ActionEvent e) {
 					try {
-						if(!(Integer.parseInt(amountField.getText()) > 0 || Float.parseFloat(amountField.getText()) > 0)) {
+						//All these checks are to stop the user from inputting unwanted data types
+						if(!(Integer.parseInt(amountField.getText()) > 0)) {
 							throw new Exception();
 						} else if(!(Integer.parseInt(dueDate.getText()) > 0 && Integer.parseInt(dueDate.getText()) < 31)) {
 							throw new Exception();
-						} else if(nameField.getText().equals(null))
+						} else if(nameField.getText().equals("")) {
 							throw new Exception();
+						}
 						else {
 							String typeString = (String) typeBox.getSelectedItem();
 							String[] newLine = {typeString,nameField.getText(),amountField.getText(),dueDate.getText()};
@@ -271,7 +274,7 @@ public class FinalProjectTfrater extends JFrame {
 						}
 					}
 					catch (Exception excep){
-						JOptionPane.showMessageDialog(null, "Please enter only numbers for the amount and due date and please ensure that the due date is between 1 and 30\nThe name field can be anything but it cannot be empty.", "Incorrect Data Type", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(null, "Unfortunately the amount can only accpet Integers due to mistakes by the creator and please ensure that the due date is between 1 and 31\nThe name field can be anything but it cannot be empty.", "Incorrect Data Type", JOptionPane.ERROR_MESSAGE);
 					}
 				}
 			});
@@ -288,6 +291,7 @@ public class FinalProjectTfrater extends JFrame {
 			});
 			getContentPane().add(buttonPanel,BorderLayout.SOUTH);
 			setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			getRootPane().setDefaultButton(addButton);
 			setSize(500,500);
 		}
 	}
@@ -401,6 +405,7 @@ public class FinalProjectTfrater extends JFrame {
 			}
 		});
 		outputArea.setEditable(false);
+		getRootPane().setDefaultButton(cancelButton);
 		outputArea.append("--------Budget Calculator--------"+"\n");
 		tableUpdateFromFile();
 		setVisible(true);
