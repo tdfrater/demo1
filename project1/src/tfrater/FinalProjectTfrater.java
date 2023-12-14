@@ -109,6 +109,7 @@ public class FinalProjectTfrater extends JFrame {
 			//This triggers if the file does exist
 			else {
 				outputArea.append("This program found an existing file:"+"\n"+file.getAbsolutePath()+"\n\n");
+				outputArea.append("--------Calculated Budget--------"+"\n");
 				outputArea.append(dateFormat.format(now)+"\n\n");
 				outputArea.append("Expenses remaining for the month:"+"\n");
 				//Integer used to keep track of total income
@@ -150,13 +151,70 @@ public class FinalProjectTfrater extends JFrame {
 				if(expenseMonthBoolean == false)
 					outputArea.append("No expenses left for this month"+"\n\n");
 				String spendable = Integer.toString((incomeTotal - expenseTotal));
-				outputArea.append("You can spend $"+spendable+" for the rest of this month"+"\n");
-				outputArea.append("Use it wiseley!"+"\n\n");
+				if((incomeTotal - expenseTotal)<0)
+						outputArea.append("You need to find $"+spendable+" to cover your expenses for this month"+"\n\n");
+				else {
+					outputArea.append("Your budget is $"+spendable+" for this month"+"\n");
+					outputArea.append("Use it wiseley!"+"\n\n");
+				}
 			}
 		}
 		catch (Exception excep){
 			excep.printStackTrace();
 			outputArea.append("There was an error in updating your table from the file:"+"\n"+file.getAbsolutePath()+"\n\n");
+		}
+	}
+	
+	//This function also calculates Budget but this does not change the File file or the JTable
+	private class BudgetCalculate implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			outputArea.append("--------Calculated Budget--------"+"\n");
+			outputArea.append(dateFormat.format(now)+"\n\n");
+			outputArea.append("Expenses remaining for the month:"+"\n");
+			//Integer used to keep track of total income
+			int incomeTotal = 0;
+			//Integer used to keep track of total expenses
+			int expenseTotal = 0;
+			//Boolean used to keep track of whether or not there were expenses left in the month
+			Boolean expenseMonthBoolean = false;
+			try {
+				BufferedReader reader = new BufferedReader(new FileReader(file));
+				//String that holds each line in the file
+				String nextLine = "";
+				while (( nextLine = reader.readLine()) != null) {
+					if(!nextLine.startsWith("Type")) {
+						//Parsing through each line of File file
+						String[] splitList = nextLine.split(",");
+						String type = splitList[0];
+						String name = splitList[1];
+						String amountString = splitList[2];
+						String dueDate = splitList[3];
+						if(type.equals("Income")) {
+							int amount = Integer.parseInt(amountString);
+							incomeTotal += amount;
+						}
+						else if(type.equals("Expense")) {
+							int amount = Integer.parseInt(amountString);
+							expenseTotal += amount;
+						}
+						if(Integer.parseInt(dueDate) > now.getDayOfMonth()) {
+								outputArea.append("$"+amountString+" for "+name+" due in "+(Integer.parseInt(dueDate) - now.getDayOfMonth())+" days"+"\n\n");
+								expenseMonthBoolean = true;
+						}
+					}
+				}
+				reader.close();
+			}
+			catch (Exception excep){
+				excep.printStackTrace();
+				outputArea.append("There was an error in trying to calculate your budget from:"+"\n"+file.getAbsolutePath()+"\n\n");
+			}
+			if(expenseMonthBoolean == false)
+				outputArea.append("No expenses left for this month"+"\n\n");
+			String spendable = Integer.toString((incomeTotal - expenseTotal));
+			outputArea.append("You can spend $"+spendable+" for the rest of this month"+"\n");
+			outputArea.append("Use it wiseley!"+"\n\n");
+			validate();
 		}
 	}
 	
@@ -297,8 +355,10 @@ public class FinalProjectTfrater extends JFrame {
 		removeMenu.addActionListener(new ActionListener () {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					String removeChoiceString = JOptionPane.showInputDialog(removeMenu, "Please enter a whole number between 1 and "+ model.getRowCount());
+					String removeChoiceString = JOptionPane.showInputDialog(removeMenu, "Please enter a whole number between 1 and "+ model.getRowCount()+" for the row that you would like to delete");
 					int removeChoiceInt = Integer.parseInt(removeChoiceString);
+					if(removeChoiceInt < 0 || removeChoiceInt > model.getRowCount())
+						throw new Exception();
 					model.removeRow(removeChoiceInt-1);
 					model.fireTableDataChanged();
 					saveTableData(outputTable, file);
@@ -315,60 +375,7 @@ public class FinalProjectTfrater extends JFrame {
 		JMenu calculateMenu = new JMenu("Calculate");
 		JMenuItem calculateBudgetMenu = new JMenuItem("Calculate Budget");
 		calculateMenu.add(calculateBudgetMenu);
-		calculateBudgetMenu.addActionListener(new ActionListener () {
-			public void actionPerformed(ActionEvent e) {
-				try {
-					outputArea.append(dateFormat.format(now)+"\n\n");
-					outputArea.append("Expenses remaining for the month:"+"\n");
-					//Integer used to keep track of total income
-					int incomeTotal = 0;
-					//Integer used to keep track of total expenses
-					int expenseTotal = 0;
-					//Boolean used to keep track of whether or not there were expenses left in the month
-					Boolean expenseMonthBoolean = false;
-					BufferedReader reader = new BufferedReader(new FileReader(file));
-					//String that holds each line in the file
-					String nextLine = "";
-					while (( nextLine = reader.readLine()) != null) {
-						if(!nextLine.startsWith("Type")) {
-							//Parsing through each line of File file
-							String[] splitList = nextLine.split(",");
-							String type = splitList[0];
-							String name = splitList[1];
-							String amountString = splitList[2];
-							String dueDate = splitList[3];
-							String[] newLine = {type,name,amountString,dueDate};
-							if(type.equals("Income")) {
-								int amount = Integer.parseInt(amountString);
-								incomeTotal += amount;
-							}
-							else if(type.equals("Expense")) {
-								int amount = Integer.parseInt(amountString);
-								expenseTotal += amount;
-							}
-							//Adding entries into the JTable if they are not empty
-							if(newLine.length != 0)
-								model.addRow(newLine);
-							if(Integer.parseInt(dueDate) > now.getDayOfMonth()) {
-									outputArea.append("$"+amountString+" for "+name+" due in "+(Integer.parseInt(dueDate) - now.getDayOfMonth())+" days"+"\n\n");
-									expenseMonthBoolean = true;
-							}
-						}
-					}
-					reader.close();
-					if(expenseMonthBoolean == false)
-						outputArea.append("No expenses left for this month"+"\n\n");
-					String spendable = Integer.toString((incomeTotal - expenseTotal));
-					outputArea.append("You can spend $"+spendable+" for the rest of this month"+"\n");
-					outputArea.append("Use it wiseley!"+"\n\n");
-					validate();
-				}
-				catch (Exception excep){
-					excep.printStackTrace();
-					outputArea.append("There was an error in updating your table from the file:"+"\n"+file.getAbsolutePath()+"\n\n");
-				}
-			}
-		});
+		calculateBudgetMenu.addActionListener(new BudgetCalculate());
 		menuBar.add(calculateMenu);
 		setJMenuBar(menuBar);
 		//Controls the buttons and their listeners
@@ -394,7 +401,7 @@ public class FinalProjectTfrater extends JFrame {
 			}
 		});
 		outputArea.setEditable(false);
-		outputArea.append("Budget Calculator"+"\n");
+		outputArea.append("--------Budget Calculator--------"+"\n");
 		tableUpdateFromFile();
 		setVisible(true);
 	}
