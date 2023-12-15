@@ -152,8 +152,10 @@ public class FinalProjectTfrater extends JFrame {
 				if(expenseMonthBoolean == false)
 					outputArea.append("No expenses left for this month"+"\n\n");
 				String spendable = Integer.toString((incomeTotal - expenseTotal));
-				if((incomeTotal - expenseTotal)<0)
-						outputArea.append("You need to find $"+spendable+" to cover your expenses for this month"+"\n\n");
+				if((incomeTotal - expenseTotal)<0) {
+					spendable = Integer.toString((incomeTotal - expenseTotal)*-1);
+					outputArea.append("You need to find $"+spendable+" to cover your expenses for this month"+"\n\n");
+				}
 				else {
 					outputArea.append("Your budget is $"+spendable+" for this month"+"\n");
 					outputArea.append("Use it wiseley!"+"\n\n");
@@ -213,8 +215,14 @@ public class FinalProjectTfrater extends JFrame {
 			if(expenseMonthBoolean == false)
 				outputArea.append("No expenses left for this month"+"\n\n");
 			String spendable = Integer.toString((incomeTotal - expenseTotal));
-			outputArea.append("You can spend $"+spendable+" for the rest of this month"+"\n");
-			outputArea.append("Use it wiseley!"+"\n\n");
+			if((incomeTotal - expenseTotal)<0) {
+				spendable = Integer.toString((incomeTotal - expenseTotal)*-1);
+				outputArea.append("You need to find $"+spendable+" to cover your expenses for this month"+"\n\n");
+			}
+			else {
+				outputArea.append("Your budget is $"+spendable+" for this month"+"\n");
+				outputArea.append("Use it wiseley!"+"\n\n");
+			}
 			validate();
 		}
 	}
@@ -305,6 +313,7 @@ public class FinalProjectTfrater extends JFrame {
 		JMenu fileMenu = new JMenu("File");
 		JMenuItem clearOutputMenu = new JMenuItem("Clear Output Area");
 		JMenuItem clearDataMenu = new JMenuItem("Clear All Data");
+		//This area is where the Clear Output button is controlled and it's action listeners
 		fileMenu.add(clearOutputMenu);
 		clearOutputMenu.addActionListener(new ActionListener () {
 			public void actionPerformed(ActionEvent e) {
@@ -318,18 +327,23 @@ public class FinalProjectTfrater extends JFrame {
 				}
 			}
 		});
+		clearOutputMenu.setToolTipText("Clears the output area without deleting any data");
+		//This area is where the Clear Data button is controlled and it's action listeners
 		fileMenu.add(clearDataMenu);
 		clearDataMenu.addActionListener(new ActionListener () {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					if(file.delete()) {
-						outputArea.setText(null);
-						outputArea.append("You're table data was succssessfully cleared"+"\n");
-						model.setRowCount(0);
-						model.fireTableDataChanged();
-						tableUpdateFromFile();
-						model.fireTableDataChanged();
-						validate();
+					int confirmChoice = JOptionPane.showConfirmDialog(clearDataMenu, "Are you suere you want to delete all your data");
+					if(confirmChoice == 0) {
+						if(file.delete()) {
+							outputArea.setText(null);
+							outputArea.append("You're table data was succssessfully cleared"+"\n");
+							model.setRowCount(0);
+							model.fireTableDataChanged();
+							tableUpdateFromFile();
+							model.fireTableDataChanged();
+							validate();
+						}
 					}
 				}
 				catch (Exception excep){
@@ -338,12 +352,14 @@ public class FinalProjectTfrater extends JFrame {
 				}
 			}
 		});
+		clearDataMenu.setToolTipText("Clears all the data from the output area and your table. This is a full reset with no going back!");
 		menuBar.add(fileMenu);
 		//The following controls the edit menu tab and it's listeners
 		JMenu editMenu = new JMenu("Edit");
 		JMenuItem addNewMenu = new JMenuItem("Add New Entry");
 		JMenuItem removeMenu = new JMenuItem("Remove Entry");
 		editMenu.add(addNewMenu);
+		//This area is where the Add New Entry button is controlled and it's action listeners
 		addNewMenu.addActionListener(new ActionListener () {
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -356,7 +372,9 @@ public class FinalProjectTfrater extends JFrame {
 				}
 			}
 		});
+		addNewMenu.setToolTipText("Add a new entry to your budget table");
 		editMenu.add(removeMenu);
+		//This area is where the Remove Entry button is controlled and it's action listeners
 		removeMenu.addActionListener(new ActionListener () {
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -377,12 +395,14 @@ public class FinalProjectTfrater extends JFrame {
 				}
 			}
 		});
+		removeMenu.setToolTipText("Remove an entry from your table based on row number");
 		menuBar.add(editMenu);
 		//Controls the menu and listeners for the calculate tab
 		JMenu calculateMenu = new JMenu("Calculate");
 		JMenuItem calculateBudgetMenu = new JMenuItem("Calculate Budget");
 		calculateMenu.add(calculateBudgetMenu);
 		calculateBudgetMenu.addActionListener(new BudgetCalculate());
+		calculateBudgetMenu.setToolTipText("This calculates the current budget based on what you have entered in the table");
 		menuBar.add(calculateMenu);
 		setJMenuBar(menuBar);
 		//Controls the buttons and their listeners
