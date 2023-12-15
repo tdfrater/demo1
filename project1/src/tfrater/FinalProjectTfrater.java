@@ -100,7 +100,8 @@ public class FinalProjectTfrater extends JFrame {
 			//This triggers if the file does not exist
 			if(file.createNewFile()) {
 				outputArea.append("A new file was created for you:"+"\n"+file.getAbsolutePath()+"\n\n");
-				outputArea.append("Use the add button in the edit tab to start adding to your budget"+"\n\n");
+				outputArea.append("Use the add button in the edit tab to start adding to your budget"+"\n");
+				outputArea.append("Use the calculate new budget button in the calculate tab when you are finished"+"\n\n");
 				BufferedWriter writer = new BufferedWriter(new FileWriter(file,true));
 				writer.write("Type,Name,Amount,DueDate");
 				writer.newLine();
@@ -360,13 +361,15 @@ public class FinalProjectTfrater extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					String removeChoiceString = JOptionPane.showInputDialog(removeMenu, "Please enter a whole number between 1 and "+ model.getRowCount()+" for the row that you would like to delete");
-					int removeChoiceInt = Integer.parseInt(removeChoiceString);
-					if(removeChoiceInt < 0 || removeChoiceInt > model.getRowCount())
-						throw new Exception();
-					model.removeRow(removeChoiceInt-1);
-					model.fireTableDataChanged();
-					saveTableData(outputTable, file);
-					validate();
+					if(removeChoiceString == "null") {
+						int removeChoiceInt = Integer.parseInt(removeChoiceString);
+						if(removeChoiceInt < 0 || removeChoiceInt > model.getRowCount())
+							throw new Exception();
+						model.removeRow(removeChoiceInt-1);
+						model.fireTableDataChanged();
+						saveTableData(outputTable, file);
+						validate();
+					}
 				}
 				catch (Exception excep){
 					excep.printStackTrace();
